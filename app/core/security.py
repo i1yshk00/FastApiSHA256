@@ -2,6 +2,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import jwt
+from anyio import to_thread
 from jwt import InvalidTokenError
 from pwdlib import PasswordHash
 
@@ -15,9 +16,19 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return password_hash.verify(plain_password, hashed_password)
 
 
+async def verify_password_async(plain_password: str, hashed_password: str) -> bool:
+    """Check a password hash in a worker thread to keep event loop responsive."""
+    return await to_thread.run_sync(verify_password, plain_password, hashed_password)
+
+
 def get_password_hash(password: str) -> str:
     """Create an Argon2 password hash for storing user credentials."""
     return password_hash.hash(password)
+
+
+async def get_password_hash_async(password: str) -> str:
+    """Create a password hash in a worker thread to avoid blocking async routes."""
+    return await to_thread.run_sync(get_password_hash, password)
 
 
 def create_access_token(

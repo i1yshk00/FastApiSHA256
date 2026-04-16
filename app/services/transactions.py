@@ -12,6 +12,7 @@ from app.schemas import TransactionWebhookRequest, TransactionWebhookResponse
 
 TRANSACTION_STATUS_PROCESSED = "processed"
 TRANSACTION_STATUS_ALREADY_PROCESSED = "already_processed"
+TRANSACTION_PROCESSING_ATTEMPTS = 2
 
 
 class TransactionWebhookError(Exception):
@@ -100,27 +101,30 @@ async def process_transaction_webhook(
     if not verify_transaction_signature(payload):
         raise InvalidTransactionSignatureError()
 
-    try:
-        async with session.begin():
-            return await process_transaction_webhook_in_transaction(
-                session=session,
-                payload=payload,
+    last_integrity_error: IntegrityError | None = None
+    for _ in range(TRANSACTION_PROCESSING_ATTEMPTS):
+        try:
+            async with session.begin():
+                return await process_transaction_webhook_in_transaction(
+                    session=session,
+                    payload=payload,
+                )
+        except IntegrityError as exc:
+            await session.rollback()
+            last_integrity_error = exc
+            existing_transaction_result = await session.execute(
+                select(Transactions).where(
+                    Transactions.transaction_id == payload.transaction_id,
+                ),
             )
-    except IntegrityError as exc:
-        await session.rollback()
-        existing_transaction_result = await session.execute(
-            select(Transactions).where(
-                Transactions.transaction_id == payload.transaction_id,
-            ),
-        )
-        existing_transaction = existing_transaction_result.scalar_one_or_none()
-        if existing_transaction is not None:
-            return await build_existing_transaction_response(
-                session=session,
-                transaction=existing_transaction,
-            )
+            existing_transaction = existing_transaction_result.scalar_one_or_none()
+            if existing_transaction is not None:
+                return await build_existing_transaction_response(
+                    session=session,
+                    transaction=existing_transaction,
+                )
 
-        raise TransactionIntegrityError() from exc
+    raise TransactionIntegrityError() from last_integrity_error
 
 
 async def process_transaction_webhook_in_transaction(

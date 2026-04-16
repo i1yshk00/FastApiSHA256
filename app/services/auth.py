@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security import create_access_token, verify_password
+from app.core.security import create_access_token, verify_password_async
 from app.models import Users
 
 
@@ -18,7 +18,7 @@ async def authenticate_user(
     if user is None or not user.is_active:
         return None
 
-    if not verify_password(password, user.hashed_password):
+    if not await verify_password_async(password, user.hashed_password):
         return None
 
     user.last_login_at = datetime.now(UTC)

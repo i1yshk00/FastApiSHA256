@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.api.deps import get_current_admin
-from app.core.security import get_password_hash
+from app.core.security import get_password_hash_async
 from app.db.session import get_session
 from app.models import Users
 from app.schemas import (
@@ -97,7 +97,7 @@ async def create_user(
     user = Users(
         email=payload.email,
         full_name=payload.full_name,
-        hashed_password=get_password_hash(payload.password),
+        hashed_password=await get_password_hash_async(payload.password),
         is_active=payload.is_active,
         is_admin=payload.is_admin,
     )
@@ -153,7 +153,7 @@ async def update_user(
     if "full_name" in update_data:
         user.full_name = update_data["full_name"]
     if "password" in update_data:
-        user.hashed_password = get_password_hash(update_data["password"])
+        user.hashed_password = await get_password_hash_async(update_data["password"])
     if "is_active" in update_data:
         user.is_active = update_data["is_active"]
     if "is_admin" in update_data:
