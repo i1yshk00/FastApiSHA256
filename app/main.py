@@ -7,8 +7,18 @@ from app.core.exceptions import register_exception_handlers
 
 loguru_config_obj.setup_logging()
 
+PROJECT_DESCRIPTION = """
+Async REST API for a backend test assignment.
+
+The service allows users to authenticate, retrieve their profile, view their
+accounts, and inspect their transactions. Administrators can manage users and
+retrieve users with their account balances. External transaction webhooks are
+validated with a SHA256 signature before updating account balances.
+"""
+
 app = FastAPI(
     title=settings.APP_NAME,
+    description=PROJECT_DESCRIPTION,
     debug=settings.DEBUG,
 )
 register_exception_handlers(app)

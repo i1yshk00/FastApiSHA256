@@ -105,22 +105,6 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
     EXTERNAL_SECRET_KEY: str
 
-    @property
-    def env_file_exists(self) -> bool:
-        """Return whether the project-level .env file exists."""
-        return ENV_FILE_PATH.exists()
-
-    def log_configuration_warnings(self) -> None:
-        """Log warnings for configuration states that are allowed but risky."""
-        if not self.env_file_exists:
-            logger.error(
-                "Missing .env configuration file at {}. Required settings must "
-                "be provided via OS environment variables. For Docker Compose, "
-                "pass secrets and database settings through the app service "
-                "environment.",
-                ENV_FILE_PATH,
-            )
-
     model_config = SettingsConfigDict(
         env_file=ENV_FILE_PATH,
         case_sensitive=False,
@@ -184,17 +168,5 @@ class LoguruConfig:
             ),
         )
 
-
-def log_missing_env_file() -> None:
-    """Log an error when required settings are expected outside .env."""
-    if not ENV_FILE_PATH.exists():
-        logger.error(
-            "Missing .env configuration file at {}. Required settings must be "
-            "provided via OS environment variables.",
-            ENV_FILE_PATH,
-        )
-
-
-log_missing_env_file()
 settings = Settings()
 loguru_config_obj = LoguruConfig()
