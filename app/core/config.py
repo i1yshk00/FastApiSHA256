@@ -168,5 +168,6 @@ class LoguruConfig:
             ),
         )
 
+
 settings = Settings()
 loguru_config_obj = LoguruConfig()
