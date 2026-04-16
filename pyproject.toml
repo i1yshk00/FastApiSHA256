@@ -1,0 +1,51 @@
+[tool.poetry]
+name = "fastapisha256"
+version = "0.1.0"
+description = ""
+authors = ["h1KkkaaH <sav1212121212@bk.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.135.3"
+uvicorn = "^0.44.0"
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.49"}
+asyncpg = "^0.31.0"
+alembic = "^1.18.4"
+pydantic-settings = "^2.13.1"
+pyjwt = "^2.12.1"
+pwdlib = {extras = ["argon2"], version = "^0.3.0"}
+loguru = "^0.7.3"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^9.0.3"
+pytest-asyncio = "^1.3.0"
+httpx = "^0.28.1"
+pytest-cov = "^7.1.0"
+ruff = "^0.15.10"
+aiosqlite = "^0.22.1"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+indent-width = 4
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "B",
+    "UP",
+]
+ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
