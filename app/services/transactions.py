@@ -80,7 +80,7 @@ async def build_existing_transaction_response(
 ) -> TransactionWebhookResponse:
     """Build idempotent webhook response for an already stored transaction."""
     account = await session.get(Accounts, transaction.account_id)
-    balance = account.balance if account is not None else 0.0
+    balance = account.balance if account is not None else Decimal("0.00")
 
     return TransactionWebhookResponse(
         transaction_id=transaction.transaction_id,
@@ -156,7 +156,7 @@ async def process_transaction_webhook_in_transaction(
         account = Accounts(
             id=payload.account_id,
             user_id=payload.user_id,
-            balance=0.0,
+            balance=Decimal("0.00"),
         )
         session.add(account)
         await session.flush()
@@ -168,7 +168,7 @@ async def process_transaction_webhook_in_transaction(
         if new_balance <= Decimal("0"):
             raise TransactionInsufficientFundsError()
 
-    transaction_amount = float(payload.amount)
+    transaction_amount = payload.amount
     transaction = Transactions(
         transaction_id=payload.transaction_id,
         user_id=payload.user_id,

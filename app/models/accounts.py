@@ -6,8 +6,8 @@ transaction webhook will use this model to find or create a target balance accou
 and then increase ``balance`` after a valid transaction.
 """
 
-from typing import TYPE_CHECKING
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, Numeric, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -32,8 +32,9 @@ class Accounts(Base):
         transactions: Processed top-up transactions for this account.
 
     Notes:
-        PostgreSQL ``Numeric(18, 2)`` is used to avoid binary floating-point
-        errors in balance calculations.
+        For production money calculations, ``Decimal`` plus PostgreSQL
+        ``Numeric`` is safer than binary floating-point storage. Response
+        schemas still serialize balance as a JSON number.
     """
 
     __tablename__ = "accounts"

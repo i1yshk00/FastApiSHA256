@@ -30,6 +30,10 @@ aiosqlite = "^0.22.1"
 target-version = "py312"
 line-length = 88
 indent-width = 4
+include = [
+    "app/**/*.py",
+    "tests/**/*.py",
+]
 
 [tool.ruff.lint]
 select = [

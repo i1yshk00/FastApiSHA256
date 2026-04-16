@@ -10,9 +10,10 @@ of the transaction history and is intentionally not persisted here.
 """
 
 from datetime import datetime
+from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, Float, ForeignKey, String, func
+from sqlalchemy import DateTime, ForeignKey, Numeric, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -30,7 +31,7 @@ class Transactions(Base):
             This field is the primary key and provides webhook idempotency.
         user_id: User that owns the target account.
         account_id: Account that receives the balance top-up.
-        amount: Credited amount from the webhook payload.
+        amount: Transaction amount from the webhook payload.
         created_at: Server-side timestamp when the transaction was stored.
         user: Parent ``Users`` ORM object.
         account: Parent ``Accounts`` ORM object.
@@ -52,7 +53,7 @@ class Transactions(Base):
         index=True,
         nullable=False,
     )
-    amount: Mapped[float] = mapped_column(Float, nullable=False)
+    amount: Mapped[Decimal] = mapped_column(Numeric(18, 2), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
